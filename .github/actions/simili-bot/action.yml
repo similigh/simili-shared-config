@@ -61,7 +61,8 @@ runs:
         cd simili-bot-repo
         # Run simili-bot process command with issue data in non-interactive mode
         # CI=true environment variable tells simili-bot to skip the interactive TUI
-        timeout 180 ./simili-cli process \
+        # Note: First run takes ~3-4 min (Go build), subsequent runs ~30-60s (cached)
+        timeout 360 ./simili-cli process \
           --config "${{ inputs.config_path }}" \
           --issue /tmp/simili/issue.json \
           --workflow issue-triage \
