@@ -1,0 +1,35 @@
+qdrant:
+  url: "${QDRANT_URL}"
+  api_key: "${QDRANT_API_KEY}"
+  collection: "event-int-index"
+
+embedding:
+  provider: "gemini"
+  api_key: "${GEMINI_API_KEY}"
+
+defaults:
+  similarity_threshold: 0.70
+  max_similar_to_show: 5
+  cross_repo_search: true
+
+repositories:
+  - org: "similigh"
+    repo: "event-integrator-cli"
+    enabled: true
+    labels: ["cli"]
+  - org: "similigh"
+    repo: "event-integrator-vscode"
+    enabled: true
+    labels: ["vscode-extension"]
+  - org: "similigh"
+    repo: "event-integrator-docs"
+    enabled: true
+    labels: ["documentation"]
+  - org: "similigh"
+    repo: "event-integrator-core"
+    enabled: true
+    labels: ["core"]
+  - org: "similigh"
+    repo: "event-integrator-sdk"
+    enabled: true
+    labels: ["sdk"]
