@@ -21,7 +21,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Download Simili-Bot Binary
+    - name: Download and Extract Simili-Bot Binary
       shell: bash
       run: |
         mkdir -p /tmp/simili-bin
@@ -43,11 +43,30 @@ runs:
 
         echo "Downloading simili-bot for ${OS}-${ARCH}..."
 
-        # Download latest release binary
-        curl -L https://github.com/similigh/simili-bot/releases/download/v0.0.2/simili-bot-${OS}-${ARCH} -o simili-cli
-        chmod +x simili-cli
+        # Download and extract release tarball
+        curl -L https://github.com/similigh/simili-bot/releases/download/v0.0.2/simili-bot_0.0.2_${OS}_${ARCH}.tar.gz -o simili-bot.tar.gz
 
-        echo "Binary downloaded successfully"
+        if [ ! -f simili-bot.tar.gz ]; then
+          echo "ERROR: Failed to download binary"
+          exit 1
+        fi
+
+        tar -xzf simili-bot.tar.gz
+
+        # Find the binary (it might be in a subdirectory)
+        if [ -f simili ]; then
+          mv simili simili-cli
+        elif [ -f simili-bot ]; then
+          mv simili-bot simili-cli
+        else
+          echo "ERROR: Could not find binary in tarball"
+          echo "Contents:"
+          find . -type f
+          exit 1
+        fi
+
+        chmod +x simili-cli
+        echo "Binary extracted successfully"
         ./simili-cli --version || echo "Binary ready"
 
     - name: Create issue JSON
