@@ -21,36 +21,44 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Post Simili-Bot Comment
+    - name: Checkout simili-bot
+      uses: actions/checkout@v4
+      with:
+        repository: similigh/simili-bot
+        path: simili-bot-repo
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+
+    - name: Build simili-bot
+      shell: bash
+      run: |
+        cd simili-bot-repo
+        go build -o simili-cli ./cmd/simili
+
+    - name: Create issue JSON
+      shell: bash
+      run: |
+        mkdir -p /tmp/simili
+        cat > /tmp/simili/issue.json << 'EOF'
+        ${{ toJson(github.event.issue) }}
+        EOF
+
+    - name: Run Simili-Bot Process
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
+        GEMINI_API_KEY: ${{ inputs.gemini_api_key }}
         QDRANT_URL: ${{ inputs.qdrant_url }}
         QDRANT_API_KEY: ${{ inputs.qdrant_api_key }}
-        ISSUE_NUMBER: ${{ github.event.issue.number }}
-        REPO: ${{ github.repository }}
       run: |
-        # Create a comment indicating Simili-Bot is configured
-        cat > /tmp/comment.txt << 'EOFCOMMENT'
-        ## 🤖 Simili-Bot Workflow Activated
-
-        Simili-Bot is active and configured for this repository.
-
-        **Setup Status:**
-        - ✅ Central configuration: `similigh/simili-shared-config`
-        - ✅ Vector database: Qdrant (`event-int-index` collection)
-        - ✅ Embedding provider: Google Gemini API
-        - ✅ Cross-repo search: Enabled
-        - ✅ Workflow preset: `issue-triage`
-
-        **What Simili-Bot Does:**
-        - Detects duplicate issues using semantic search
-        - Finds similar issues across all 5 event-integrator repositories
-        - Posts links to related discussions
-
-        **Repository:** $REPO
-        **Issue:** #$ISSUE_NUMBER
-        EOFCOMMENT
-
-        # Post the comment using GitHub CLI
-        gh issue comment $ISSUE_NUMBER --body-file /tmp/comment.txt --repo $REPO || echo "Note: Could not post comment"
+        cd simili-bot-repo
+        # Run simili-bot process command with issue data in non-interactive mode
+        # Redirect stdin from /dev/null to prevent TUI from trying to open TTY
+        ./simili-cli process \
+          --config "${{ inputs.config_path }}" \
+          --issue /tmp/simili/issue.json \
+          --workflow issue-triage \
+          -v < /dev/null 2>&1 || true
