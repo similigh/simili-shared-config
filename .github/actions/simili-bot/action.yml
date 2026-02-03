@@ -1,0 +1,50 @@
+name: 'Simili-Bot Action'
+description: 'Run Simili-Bot for issue triage and duplicate detection'
+inputs:
+  config_path:
+    description: 'Path to simili configuration file'
+    required: false
+    default: '.github/simili.yaml'
+  github_token:
+    description: 'GitHub token for API access'
+    required: true
+  gemini_api_key:
+    description: 'Google Gemini API key'
+    required: true
+  qdrant_url:
+    description: 'Qdrant database URL'
+    required: true
+  qdrant_api_key:
+    description: 'Qdrant API key'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout simili-bot
+      uses: actions/checkout@v4
+      with:
+        repository: similigh/simili-bot
+        path: simili-bot-repo
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21'
+
+    - name: Build simili-bot
+      shell: bash
+      run: |
+        cd simili-bot-repo
+        go build -o simili-cli ./cmd/simili
+
+    - name: Run Simili-Bot
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        GEMINI_API_KEY: ${{ inputs.gemini_api_key }}
+        QDRANT_URL: ${{ inputs.qdrant_url }}
+        QDRANT_API_KEY: ${{ inputs.qdrant_api_key }}
+      run: |
+        cd simili-bot-repo
+        ./simili-cli process --config "${{ inputs.config_path }}" -v
