@@ -44,7 +44,7 @@ runs:
         echo "Downloading simili-bot for ${OS}-${ARCH}..."
 
         # Download and extract release tarball
-        curl -L https://github.com/similigh/simili-bot/releases/download/v0.0.3/simili-bot_0.0.3_${OS}_${ARCH}.tar.gz -o simili-bot.tar.gz
+        curl -L https://github.com/similigh/simili-bot/releases/download/v0.0.4/simili-bot_0.0.4_${OS}_${ARCH}.tar.gz -o simili-bot.tar.gz
 
         if [ ! -f simili-bot.tar.gz ]; then
           echo "ERROR: Failed to download binary"
