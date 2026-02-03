@@ -50,7 +50,6 @@ runs:
 
     - name: Run Simili-Bot Process
       shell: bash
-      timeout-minutes: 3
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GEMINI_API_KEY: ${{ inputs.gemini_api_key }}
