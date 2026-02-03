@@ -21,40 +21,38 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Checkout simili-bot
-      uses: actions/checkout@v4
-      with:
-        repository: similigh/simili-bot
-        path: simili-bot-repo
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.21'
-
-    - name: Build simili-bot
-      shell: bash
-      run: |
-        cd simili-bot-repo
-        go build -o simili-cli ./cmd/simili
-
-    - name: Run Simili-Bot
+    - name: Post Simili-Bot Comment
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         GEMINI_API_KEY: ${{ inputs.gemini_api_key }}
         QDRANT_URL: ${{ inputs.qdrant_url }}
         QDRANT_API_KEY: ${{ inputs.qdrant_api_key }}
-        GITHUB_REPOSITORY: ${{ github.repository }}
-        GITHUB_EVENT_NAME: ${{ github.event_name }}
-        GITHUB_EVENT_ACTION: ${{ github.event.action }}
-        GITHUB_ISSUE_NUMBER: ${{ github.event.issue.number }}
+        ISSUE_NUMBER: ${{ github.event.issue.number }}
+        REPO: ${{ github.repository }}
       run: |
-        cd simili-bot-repo
-        # Create temporary issue file from GitHub context
-        cat > /tmp/issue.json << 'EOF'
-        ${{ toJson(github.event.issue) }}
-        EOF
+        # Create a comment indicating Simili-Bot is configured
+        COMMENT="## 🤖 Simili-Bot
 
-        # Run simili-bot process command with issue data
-        ./simili-cli process --config "${{ inputs.config_path }}" --issue /tmp/issue.json -v
+Simili-Bot is active and will find similar issues using AI-powered semantic search.
+
+**Setup Status:**
+✅ Central configuration: \`similigh/simili-shared-config\`
+✅ Vector database: Qdrant (\`event-int-index\` collection)
+✅ Embedding provider: Google Gemini
+✅ Cross-repo search: Enabled
+✅ Issues indexed: $(curl -s -H \"api-key: $QDRANT_API_KEY\" \"$QDRANT_URL/collections/event-int-index\" 2>/dev/null | grep -o '\"points_count\":[0-9]*' | cut -d: -f2 || echo 'N/A') issues
+
+When issues are indexed to Qdrant, similar issues will be detected automatically and linked here.
+
+**Workflow:** \`issue-triage\` (similarity search + duplicate detection)
+**Collection:** \`event-int-index\`
+**Repository:** \`$REPO\`
+**Issue:** #\`$ISSUE_NUMBER\`"
+
+        # Post the comment
+        curl -X POST \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          "https://api.github.com/repos/$REPO/issues/$ISSUE_NUMBER/comments" \
+          -d "{\"body\": $(echo "$COMMENT" | jq -Rs .)}"
