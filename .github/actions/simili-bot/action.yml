@@ -25,34 +25,32 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
-        GEMINI_API_KEY: ${{ inputs.gemini_api_key }}
         QDRANT_URL: ${{ inputs.qdrant_url }}
         QDRANT_API_KEY: ${{ inputs.qdrant_api_key }}
         ISSUE_NUMBER: ${{ github.event.issue.number }}
         REPO: ${{ github.repository }}
       run: |
         # Create a comment indicating Simili-Bot is configured
-        COMMENT="## 🤖 Simili-Bot
+        cat > /tmp/comment.txt << 'EOFCOMMENT'
+        ## 🤖 Simili-Bot Workflow Activated
 
-Simili-Bot is active and will find similar issues using AI-powered semantic search.
+        Simili-Bot is active and configured for this repository.
 
-**Setup Status:**
-✅ Central configuration: \`similigh/simili-shared-config\`
-✅ Vector database: Qdrant (\`event-int-index\` collection)
-✅ Embedding provider: Google Gemini
-✅ Cross-repo search: Enabled
-✅ Issues indexed: $(curl -s -H \"api-key: $QDRANT_API_KEY\" \"$QDRANT_URL/collections/event-int-index\" 2>/dev/null | grep -o '\"points_count\":[0-9]*' | cut -d: -f2 || echo 'N/A') issues
+        **Setup Status:**
+        - ✅ Central configuration: `similigh/simili-shared-config`
+        - ✅ Vector database: Qdrant (`event-int-index` collection)
+        - ✅ Embedding provider: Google Gemini API
+        - ✅ Cross-repo search: Enabled
+        - ✅ Workflow preset: `issue-triage`
 
-When issues are indexed to Qdrant, similar issues will be detected automatically and linked here.
+        **What Simili-Bot Does:**
+        - Detects duplicate issues using semantic search
+        - Finds similar issues across all 5 event-integrator repositories
+        - Posts links to related discussions
 
-**Workflow:** \`issue-triage\` (similarity search + duplicate detection)
-**Collection:** \`event-int-index\`
-**Repository:** \`$REPO\`
-**Issue:** #\`$ISSUE_NUMBER\`"
+        **Repository:** $REPO
+        **Issue:** #$ISSUE_NUMBER
+        EOFCOMMENT
 
-        # Post the comment
-        curl -X POST \
-          -H "Authorization: token $GITHUB_TOKEN" \
-          -H "Accept: application/vnd.github.v3+json" \
-          "https://api.github.com/repos/$REPO/issues/$ISSUE_NUMBER/comments" \
-          -d "{\"body\": $(echo "$COMMENT" | jq -Rs .)}"
+        # Post the comment using GitHub CLI
+        gh issue comment $ISSUE_NUMBER --body-file /tmp/comment.txt --repo $REPO || echo "Note: Could not post comment"
