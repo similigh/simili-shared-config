@@ -53,12 +53,14 @@ runs:
         GEMINI_API_KEY: ${{ inputs.gemini_api_key }}
         QDRANT_URL: ${{ inputs.qdrant_url }}
         QDRANT_API_KEY: ${{ inputs.qdrant_api_key }}
+        CI: 'true'
+        GITHUB_ACTIONS: 'true'
       run: |
         cd simili-bot-repo
         # Run simili-bot process command with issue data in non-interactive mode
-        # Redirect stdin from /dev/null to prevent TUI from trying to open TTY
+        # CI=true environment variable tells simili-bot to skip the interactive TUI
         ./simili-cli process \
           --config "${{ inputs.config_path }}" \
           --issue /tmp/simili/issue.json \
           --workflow issue-triage \
-          -v < /dev/null 2>&1 || true
+          -v
