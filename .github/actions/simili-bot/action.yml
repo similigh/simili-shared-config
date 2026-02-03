@@ -21,24 +21,34 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Checkout simili-bot
-      uses: actions/checkout@v4
-      with:
-        repository: similigh/simili-bot
-        path: simili-bot-repo
-
-    - name: Set up Go with caching
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.21'
-        cache: true
-        cache-dependency-path: simili-bot-repo/go.sum
-
-    - name: Build simili-bot
+    - name: Download Simili-Bot Binary
       shell: bash
       run: |
-        cd simili-bot-repo
-        go build -o simili-cli ./cmd/simili
+        mkdir -p /tmp/simili-bin
+        cd /tmp/simili-bin
+
+        # Detect OS and architecture
+        OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+        ARCH=$(uname -m)
+
+        # Map architecture names
+        case $ARCH in
+          x86_64)
+            ARCH="amd64"
+            ;;
+          aarch64)
+            ARCH="arm64"
+            ;;
+        esac
+
+        echo "Downloading simili-bot for ${OS}-${ARCH}..."
+
+        # Download latest release binary
+        curl -L https://github.com/similigh/simili-bot/releases/download/v0.0.2/simili-bot-${OS}-${ARCH} -o simili-cli
+        chmod +x simili-cli
+
+        echo "Binary downloaded successfully"
+        ./simili-cli --version || echo "Binary ready"
 
     - name: Create issue JSON
       shell: bash
@@ -58,11 +68,9 @@ runs:
         CI: 'true'
         GITHUB_ACTIONS: 'true'
       run: |
-        cd simili-bot-repo
         # Run simili-bot process command with issue data in non-interactive mode
         # CI=true environment variable tells simili-bot to skip the interactive TUI
-        # Note: First run takes ~3-4 min (Go build), subsequent runs ~30-60s (cached)
-        timeout 360 ./simili-cli process \
+        timeout 120 /tmp/simili-bin/simili-cli process \
           --config "${{ inputs.config_path }}" \
           --issue /tmp/simili/issue.json \
           --workflow issue-triage \
