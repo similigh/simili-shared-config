@@ -44,8 +44,3 @@ repositories:
     enabled: true
     description: "Software Development Kits for integrating (Go, Python, TypeScript). Handles client-side libraries and API wrappers."
     labels: ["sdk"]
-  - org: "similigh"
-    repo: "simili-shared-config"
-    enabled: true
-    description: "Central configuration and shared workflows for the Simili organization."
-    labels: ["config"]
