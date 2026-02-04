@@ -35,6 +35,7 @@ jobs:
         with:
           config_path: ${{ inputs.config_path }}
           github_token: ${{ github.token }}
+          transfer_token: ${{ secrets.TRANSFER_TOKEN || github.token }}
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           QDRANT_URL: ${{ secrets.QDRANT_URL }}
