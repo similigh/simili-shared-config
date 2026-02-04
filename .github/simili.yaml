@@ -12,28 +12,40 @@ defaults:
   max_similar_to_show: 5
   cross_repo_search: true
 
+transfer:
+  enabled: true
+  llm_routing_enabled: true
+  high_confidence: 0.9
+  medium_confidence: 0.7
+
 repositories:
   - org: "similigh"
     repo: "event-integrator-cli"
     enabled: true
+    description: "Command-line interface for Event-Integrator. Handles CLI commands, output formatting, and user interaction in the terminal."
     labels: ["cli"]
   - org: "similigh"
     repo: "event-integrator-vscode"
     enabled: true
+    description: "VS Code extension for Event-Integrator. Handles editor integration, syntax highlighting, and configuration UI."
     labels: ["vscode-extension"]
   - org: "similigh"
     repo: "event-integrator-docs"
     enabled: true
+    description: "Official documentation for Event-Integrator. Contains guides, API references, and conceptual overviews."
     labels: ["documentation"]
   - org: "similigh"
     repo: "event-integrator-core"
     enabled: true
+    description: "The main server and execution engine. Handles event processing, routing logic, and core system state."
     labels: ["core"]
   - org: "similigh"
     repo: "event-integrator-sdk"
     enabled: true
+    description: "Software Development Kits for integrating (Go, Python, TypeScript). Handles client-side libraries and API wrappers."
     labels: ["sdk"]
   - org: "similigh"
     repo: "simili-shared-config"
     enabled: true
+    description: "Central configuration and shared workflows for the Simili organization."
     labels: ["config"]
