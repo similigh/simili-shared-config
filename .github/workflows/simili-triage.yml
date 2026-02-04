@@ -1,0 +1,15 @@
+name: Simili Bot Triage
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  triage:
+    uses: similigh/simili-shared-config/.github/workflows/simili.yml@main
+    with:
+      config_path: .github/simili.yaml
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      QDRANT_URL: ${{ secrets.QDRANT_URL }}
+      QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}

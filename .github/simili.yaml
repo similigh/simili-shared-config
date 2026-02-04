@@ -33,3 +33,7 @@ repositories:
     repo: "event-integrator-sdk"
     enabled: true
     labels: ["sdk"]
+  - org: "similigh"
+    repo: "simili-shared-config"
+    enabled: true
+    labels: ["config"]
