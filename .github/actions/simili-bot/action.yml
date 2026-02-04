@@ -20,13 +20,6 @@ inputs:
   transfer_token:
     description: 'Token for repository transfer'
     required: false
-  simili_app_id:
-    description: 'Simili App ID'
-    required: false
-  simili_private_key:
-    description: 'Simili Private Key'
-    required: false
-
 runs:
   using: 'composite'
   steps:
@@ -94,8 +87,6 @@ runs:
         QDRANT_URL: ${{ inputs.qdrant_url }}
         QDRANT_API_KEY: ${{ inputs.qdrant_api_key }}
         TRANSFER_TOKEN: ${{ inputs.transfer_token }}
-        SIMILI_APP_ID: ${{ inputs.simili_app_id }}
-        SIMILI_PRIVATE_KEY: ${{ inputs.simili_private_key }}
         CI: 'true'
         GITHUB_ACTIONS: 'true'
       run: |

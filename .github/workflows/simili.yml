@@ -17,10 +17,6 @@ on:
         required: true
       TRANSFER_TOKEN:
         required: false
-      SIMILI_APP_ID:
-        required: false
-      SIMILI_PRIVATE_KEY:
-        required: false
 
 jobs:
   triage:
@@ -32,21 +28,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Checkout Shared Config
-        uses: actions/checkout@v4
-        with:
-          repository: similigh/simili-shared-config
-          ref: main
-          path: .simili-shared-config
-
       - name: Run Simili-Bot
-        uses: ./.simili-shared-config/.github/actions/simili-bot
+        uses: similigh/simili-bot@main
         with:
           config_path: ${{ inputs.config_path }}
           github_token: ${{ github.token }}
-          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
-          qdrant_url: ${{ secrets.QDRANT_URL }}
-          qdrant_api_key: ${{ secrets.QDRANT_API_KEY }}
           transfer_token: ${{ secrets.TRANSFER_TOKEN }}
-          simili_app_id: ${{ secrets.SIMILI_APP_ID }}
-          simili_private_key: ${{ secrets.SIMILI_PRIVATE_KEY }}
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          QDRANT_URL: ${{ secrets.QDRANT_URL }}
+          QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
