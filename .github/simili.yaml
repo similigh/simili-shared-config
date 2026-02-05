@@ -17,6 +17,7 @@ transfer:
   llm_routing_enabled: true
   high_confidence: 0.9
   medium_confidence: 0.7
+  repo_collection: "simili_repos"  # Collection for repository documentation (hybrid routing)
 
 repositories:
   - org: "similigh"
