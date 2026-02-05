@@ -1,0 +1,23 @@
+name: Simili Bot Triage
+
+on:
+  issues:
+    types: [opened, reopened, transferred]
+  issue_comment:
+    types: [created]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  triage:
+    if: github.event_name != 'issue_comment' || github.event.comment.user.login != 'gh-simili-bot'
+    uses: similigh/simili-shared-config/.github/workflows/simili.yml@main
+    with:
+      config_path: .github/simili.yaml
+    secrets:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      QDRANT_URL: ${{ secrets.QDRANT_URL }}
+      QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+      TRANSFER_TOKEN: ${{ secrets.TRANSFER_TOKEN }}
